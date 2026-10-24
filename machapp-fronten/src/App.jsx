@@ -1,12 +1,30 @@
-import Login from './page/Login.jsx';
-import './App.css';
+import { Navigate, Route, Routes } from 'react-router-dom'
+import Login from './page/Login.jsx'
+import Descubrimiento from './page/Descubrimiento.jsx'
+import Registro from './page/Registro.jsx'
+import RecuperarContrasena from './page/RecuperarContrasena.jsx'
+import ProtectedRoute from './components/ProtectedRoute.jsx'
+import './App.css'
 
 function App() {
   return (
     <div className="App">
-      <Login />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
+        <Route
+          path="/descubrimiento"
+          element={
+            <ProtectedRoute>
+              <Descubrimiento />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App

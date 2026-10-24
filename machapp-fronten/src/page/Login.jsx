@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { saveSession } from '../auth.js'
+import { getAccounts } from '../services/accounts.js'
 
 const MAX_ATTEMPTS = 5
 const LOCK_DURATION_MS = 5 * 60 * 1000
 const DISCOVERY_PATH = '/descubrimiento'
-
-const DEMO_ACCOUNTS = [
-  {
-    email: 'demo@machapp.pe',
-    dni: '12345678',
-    password: 'machapp123',
-  },
-]
 
 const EMPTY_ERRORS = { identifier: '', password: '', form: '' }
 
@@ -28,7 +23,8 @@ const formatCountdown = (seconds) => {
   return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
 }
 
-function Login({ accounts = DEMO_ACCOUNTS, onSuccess }) {
+function Login({ accounts = getAccounts(), onSuccess }) {
+  const navigate = useNavigate()
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -105,10 +101,16 @@ function Login({ accounts = DEMO_ACCOUNTS, onSuccess }) {
       setLockedUntil(0)
       setErrors(EMPTY_ERRORS)
 
+      const session = {
+        identifier: identifier.trim(),
+        loggedAt: new Date().toISOString(),
+      }
+      saveSession(session)
+
       if (onSuccess) {
-        onSuccess({ identifier: identifier.trim() })
+        onSuccess(session)
       } else {
-        window.location.assign(DISCOVERY_PATH)
+        navigate(DISCOVERY_PATH, { replace: true })
       }
       return
     }
@@ -301,18 +303,18 @@ function Login({ accounts = DEMO_ACCOUNTS, onSuccess }) {
           </form>
 
           <div className="mt-6 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
-            <a
-              href="#/recuperar-contrasena"
+            <Link
+              to="/recuperar-contrasena"
               className="font-semibold text-indigo-600 hover:text-indigo-700"
             >
               ¿Olvidaste tu contraseña?
-            </a>
-            <a
-              href="#/registro"
+            </Link>
+            <Link
+              to="/registro"
               className="font-semibold text-slate-700 hover:text-slate-900"
             >
               Crear cuenta
-            </a>
+            </Link>
           </div>
 
           <div className="mt-8 rounded-xl bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
