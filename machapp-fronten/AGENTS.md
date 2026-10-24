@@ -11,7 +11,9 @@ npm run preview  # serve the built dist/
 npm run lint     # eslint . (flat config, ignores dist/)
 ```
 
-There is no test script and no test files — do not invent one unless asked.
+- There is no test script and no test files — do not invent one unless asked.
+- Run `npm run lint` and `npm run build` after code changes; they are the only verification steps.
+- Run `npm ci` first in a fresh checkout. It prints unrelated EBADENGINE/deprecation warnings from the stray `tailwind`/`css` deps; ignore them.
 
 ## Tailwind
 
@@ -25,12 +27,15 @@ There is no test script and no test files — do not invent one unless asked.
 - Entry chain: `index.html` -> `src/main.jsx` -> `src/App.jsx`.
 - `src/App.css` holds hand-written component styles; Tailwind utilities are used inline in JSX.
 - Static assets in `public/` are served from `/` (e.g. `/icons.svg`); imported assets live in `src/assets/`.
+- `src/page/` holds screen-level components. `src/page/Login.jsx` is not mounted yet; `src/App.jsx` still renders the Vite starter demo.
+- Login has no backend: it authenticates against `DEMO_ACCOUNTS` in that file, then calls an `onSuccess` prop or redirects to `/descubrimiento` via `window.location.assign`. Replace with the real API when available.
 
 ## Conventions
 
 - ES modules (`"type": "module"`), function components, hooks, single quotes, no semicolons.
+- UI copy is Spanish (labels, validation errors, messages); keep new screens consistent.
 - Keep JSX lint-clean: `eslint-plugin-react-hooks` and `eslint-plugin-react-refresh` are enforced.
 
 ## Git
 
-Repo has no commits yet and the workspace root (`/home/francojc`) is also the git root; `git status` shows unrelated home-directory files. Stage only paths inside `machapp-fronten/` when committing.
+The git root is `/home/francojc/Documentos/MachApp`, one level above this package. Stage only paths inside `machapp-fronten/` when committing.
