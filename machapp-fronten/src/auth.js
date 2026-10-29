@@ -1,4 +1,4 @@
-const SESSION_KEY = 'machapp.session'
+const SESSION_KEY = 'matchapp.session'
 
 export const getSession = () => {
   try {

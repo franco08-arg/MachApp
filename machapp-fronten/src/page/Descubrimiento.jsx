@@ -4,7 +4,7 @@ import { clearSession, getSession } from '../auth.js'
 import { generateText, isGeminiConfigured } from '../services/gemini.js'
 
 const SUGGESTION_PROMPT =
-  'Eres el asistente de MachApp, una app para descubrir personas y planes. ' +
+  'Eres el asistente de MatchApp, una app para descubrir personas y planes. ' +
   'Sugiere en español, en un máximo de 60 palabras y sin listas, una idea ' +
   'concreta para conocer gente con intereses afines esta semana.'
 
@@ -39,7 +39,7 @@ function Descubrimiento() {
         <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-400">
-              MachApp
+              MatchApp
             </p>
             <h1 className="mt-2 text-3xl font-bold">Descubrimiento</h1>
             {session?.identifier && (
@@ -48,13 +48,21 @@ function Descubrimiento() {
               </p>
             )}
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="self-start rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
-          >
-            Cerrar sesión
-          </button>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              to="/gestionar"
+              className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
+            >
+              Perfil y ajustes
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="rounded-xl border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:border-slate-500 hover:text-white"
+            >
+              Cerrar sesión
+            </button>
+          </div>
         </header>
 
         <section className="mt-10 rounded-3xl bg-white/5 p-8 ring-1 ring-white/10">

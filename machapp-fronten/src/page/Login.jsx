@@ -148,7 +148,7 @@ function Login({ accounts = getAccounts(), onSuccess }) {
 
           <div className="relative">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
-              MachApp
+              MatchApp
             </span>
             <h1 className="mt-8 text-4xl font-bold leading-tight">
               Tu cuenta, todas tus conexiones.
@@ -321,8 +321,8 @@ function Login({ accounts = getAccounts(), onSuccess }) {
             <p className="font-semibold text-slate-600">
               Credenciales de demostración
             </p>
-            <p>Correo: demo@machapp.pe · DNI: 12345678</p>
-            <p>Contraseña: machapp123</p>
+            <p>Correo: demo@matchapp.pe · DNI: 12345678</p>
+            <p>Contraseña: matchapp123</p>
           </div>
         </section>
       </div>

@@ -5,6 +5,7 @@ import {
   isEmailRegistered,
   saveAccount,
 } from '../services/accounts.js'
+import { saveSession } from '../auth.js'
 
 const TOTAL_STEPS = 2
 const MAX_BIRTH_DATE = new Date().toISOString().slice(0, 10)
@@ -181,12 +182,14 @@ function Registro() {
   const handleFinish = (event) => {
     event.preventDefault()
 
+    const email = form.email.trim().toLowerCase()
+
     saveAccount({
       nombres: form.nombres.trim(),
       apellidos: form.apellidos.trim(),
       dni: form.dni.trim(),
       fechaNacimiento: form.fechaNacimiento,
-      email: form.email.trim().toLowerCase(),
+      email,
       password: form.password,
       termsAcceptedAt: new Date().toISOString(),
       profile: {
@@ -195,7 +198,8 @@ function Registro() {
       },
     })
 
-    navigate('/', { replace: true })
+    saveSession({ identifier: email, loggedAt: new Date().toISOString() })
+    navigate('/gestionar', { replace: true })
   }
 
   return (
@@ -204,7 +208,7 @@ function Registro() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
-              MachApp
+              MatchApp
             </p>
             <h1 className="mt-2 text-2xl font-bold text-slate-900">
               {step === 1 ? 'Crear cuenta' : 'Completa tu perfil'}

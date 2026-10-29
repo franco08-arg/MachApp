@@ -3,6 +3,7 @@ import Login from './page/Login.jsx'
 import Descubrimiento from './page/Descubrimiento.jsx'
 import Registro from './page/Registro.jsx'
 import RecuperarContrasena from './page/RecuperarContrasena.jsx'
+import Gestionar from './page/Gestionar.jsx'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import './App.css'
 
@@ -13,6 +14,14 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
+        <Route
+          path="/gestionar"
+          element={
+            <ProtectedRoute>
+              <Gestionar />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/descubrimiento"
           element={
