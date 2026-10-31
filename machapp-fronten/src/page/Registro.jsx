@@ -221,7 +221,7 @@ function Registro() {
             </p>
           </div>
           <Link
-            to="/"
+            to="/login"
             className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-slate-400 hover:text-slate-900"
           >
             Volver
@@ -456,7 +456,7 @@ function Registro() {
             <p className="text-center text-sm text-slate-500">
               ¿Ya tienes cuenta?{' '}
               <Link
-                to="/"
+                to="/login"
                 className="font-semibold text-indigo-600 hover:text-indigo-700"
               >
                 Inicia sesión

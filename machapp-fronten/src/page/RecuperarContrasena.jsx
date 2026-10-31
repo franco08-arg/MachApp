@@ -11,7 +11,7 @@ function RecuperarContrasena() {
           La recuperación estará disponible cuando se conecte la API real.
         </p>
         <Link
-          to="/"
+          to="/login"
           className="mt-6 inline-block rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
         >
           Volver a iniciar sesión

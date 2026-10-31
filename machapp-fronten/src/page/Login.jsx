@@ -9,6 +9,9 @@ const DISCOVERY_PATH = '/descubrimiento'
 
 const EMPTY_ERRORS = { identifier: '', password: '', form: '' }
 
+const INPUT_CLASS =
+  'w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-400 focus:ring-4 focus:ring-rose-100 disabled:cursor-not-allowed disabled:opacity-60'
+
 const isEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 const isDni = (value) => /^\d{8}$/.test(value)
 
@@ -140,110 +143,75 @@ function Login({ accounts = getAccounts(), onSuccess }) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-10">
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-3xl bg-white shadow-2xl shadow-slate-950/40 lg:grid-cols-[1.05fr_1fr]">
-        <section className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 p-10 text-white lg:flex">
-          <div className="absolute -right-24 -top-24 h-64 w-64 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-fuchsia-300/20 blur-2xl" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#d9d9d9] px-4 py-10">
+      <div className="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-rose-500/10 blur-3xl" />
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-80 w-80 rounded-full bg-orange-400/10 blur-3xl" />
 
-          <div className="relative">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em]">
-              MatchApp
-            </span>
-            <h1 className="mt-8 text-4xl font-bold leading-tight">
-              Tu cuenta, todas tus conexiones.
-            </h1>
-            <p className="mt-4 max-w-sm text-sm leading-6 text-indigo-100">
-              Inicia sesión para descubrir personas, intereses y experiencias
-              cerca de ti.
-            </p>
-          </div>
+      <div className="relative w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl shadow-black/40 sm:p-10">
+        <div className="flex items-center gap-2 text-rose-500">
+          <svg
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+            className="h-6 w-6"
+          >
+            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+          </svg>
+          <span className="text-2xl font-extrabold italic tracking-tight">
+            MatchApp
+          </span>
+        </div>
 
-          <ul className="relative space-y-3 text-sm text-indigo-100">
-            <li className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
-                ✓
-              </span>
-              Accede con tu correo o DNI
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
-                ✓
-              </span>
-              Descubre nuevas personas con tus gustos
-            </li>
-            <li className="flex items-center gap-3">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
-                ✓
-              </span>
-              Gestiona tu perfil en un solo lugar
-            </li>
-          </ul>
-        </section>
+        <h1 className="mt-7 text-3xl font-extrabold text-slate-900">
+          Iniciar sesión
+        </h1>
 
-        <section className="p-7 sm:p-10">
-          <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-indigo-600">
-              Bienvenido de nuevo
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900">
-              Iniciar sesión
-            </h2>
-            <p className="mt-2 text-sm text-slate-500">
-              Usa tu correo electrónico o DNI para continuar.
-            </p>
-          </div>
+        <p className="mt-3 text-sm leading-6 text-slate-500">
+          Bienvenido de nuevo. Ingresa con tu cuenta.
+        </p>
 
-          <form noValidate onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label
-                htmlFor="identifier"
-                className="mb-2 block text-sm font-medium text-slate-700"
+        <form noValidate onSubmit={handleSubmit} className="mt-7 space-y-5">
+          <div>
+            <label
+              htmlFor="identifier"
+              className="mb-1.5 block text-sm text-slate-600"
+            >
+              Correo electrónico o DNI
+            </label>
+            <input
+              id="identifier"
+              name="identifier"
+              type="text"
+              inputMode="email"
+              autoComplete="username"
+              placeholder="correo@ejemplo.com / 8 digitos"
+              value={identifier}
+              onChange={handleIdentifierChange}
+              disabled={isLocked}
+              aria-invalid={Boolean(errors.identifier)}
+              aria-describedby={
+                errors.identifier ? 'identifier-error' : undefined
+              }
+              className={INPUT_CLASS}
+            />
+            {errors.identifier && (
+              <p
+                id="identifier-error"
+                className="mt-2 text-xs font-medium text-rose-600"
               >
-                Correo electrónico o DNI
-              </label>
-              <input
-                id="identifier"
-                name="identifier"
-                type="text"
-                inputMode="email"
-                autoComplete="username"
-                placeholder="tu@correo.com o 12345678"
-                value={identifier}
-                onChange={handleIdentifierChange}
-                disabled={isLocked}
-                aria-invalid={Boolean(errors.identifier)}
-                aria-describedby={
-                  errors.identifier ? 'identifier-error' : undefined
-                }
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
-              />
-              {errors.identifier && (
-                <p
-                  id="identifier-error"
-                  className="mt-2 text-xs font-medium text-rose-600"
-                >
-                  {errors.identifier}
-                </p>
-              )}
-            </div>
+                {errors.identifier}
+              </p>
+            )}
+          </div>
 
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-sm font-medium text-slate-700"
-                >
-                  Contraseña
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((current) => !current)}
-                  className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
-                >
-                  {showPassword ? 'Ocultar' : 'Mostrar'}
-                </button>
-              </div>
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-1.5 block text-sm text-slate-600"
+            >
+              Contraseña
+            </label>
+            <div className="relative">
               <input
                 id="password"
                 name="password"
@@ -257,74 +225,83 @@ function Login({ accounts = getAccounts(), onSuccess }) {
                 aria-describedby={
                   errors.password ? 'password-error' : undefined
                 }
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className={`${INPUT_CLASS} pr-20`}
               />
-              {errors.password && (
-                <p
-                  id="password-error"
-                  className="mt-2 text-xs font-medium text-rose-600"
-                >
-                  {errors.password}
-                </p>
-              )}
-            </div>
-
-            {(errors.form || isLocked) && (
-              <div
-                role="alert"
-                aria-live="polite"
-                className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-slate-400 transition hover:text-rose-500"
               >
-                <p className="font-semibold">No pudimos iniciar sesión</p>
-                {isLocked ? (
-                  <>
-                    <p className="mt-1">
-                      Cuenta bloqueada temporalmente por demasiados intentos
-                      fallidos.
-                    </p>
-                    <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-rose-600">
-                      Espera {formatCountdown(secondsLeft)} para intentarlo de
-                      nuevo
-                    </p>
-                  </>
-                ) : (
-                  <p className="mt-1">{errors.form}</p>
-                )}
-              </div>
+                {showPassword ? 'Ocultar' : 'Mostrar'}
+              </button>
+            </div>
+            {errors.password && (
+              <p
+                id="password-error"
+                className="mt-2 text-xs font-medium text-rose-600"
+              >
+                {errors.password}
+              </p>
             )}
+          </div>
 
-            <button
-              type="submit"
-              disabled={isLocked}
-              className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-600/25 transition hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-200 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
-            >
-              {isLocked ? 'Cuenta bloqueada temporalmente' : 'Ingresar'}
-            </button>
-          </form>
-
-          <div className="mt-6 flex flex-col gap-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <div className="text-right">
             <Link
               to="/recuperar-contrasena"
-              className="font-semibold text-indigo-600 hover:text-indigo-700"
+              className="text-sm font-semibold text-rose-500 transition hover:text-rose-600"
             >
               ¿Olvidaste tu contraseña?
             </Link>
-            <Link
-              to="/registro"
-              className="font-semibold text-slate-700 hover:text-slate-900"
-            >
-              Crear cuenta
-            </Link>
           </div>
 
-          <div className="mt-8 rounded-xl bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-500">
-            <p className="font-semibold text-slate-600">
-              Credenciales de demostración
-            </p>
-            <p>Correo: demo@matchapp.pe · DNI: 12345678</p>
-            <p>Contraseña: matchapp123</p>
-          </div>
-        </section>
+          {(errors.form || isLocked) && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+            >
+              <p className="font-semibold">No pudimos iniciar sesión</p>
+              {isLocked ? (
+                <>
+                  <p className="mt-1">
+                    Cuenta bloqueada temporalmente por demasiados intentos
+                    fallidos.
+                  </p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-rose-600">
+                    Espera {formatCountdown(secondsLeft)} para intentarlo de
+                    nuevo
+                  </p>
+                </>
+              ) : (
+                <p className="mt-1">{errors.form}</p>
+              )}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLocked}
+            className="w-full rounded-full bg-gradient-to-r from-[#f2455c] to-[#f58a5f] px-4 py-3.5 text-sm font-semibold text-white shadow-lg shadow-rose-500/30 transition hover:brightness-105 focus:outline-none focus:ring-4 focus:ring-rose-200 disabled:cursor-not-allowed disabled:from-slate-300 disabled:to-slate-300 disabled:shadow-none"
+          >
+            {isLocked ? 'Cuenta bloqueada temporalmente' : 'Ingresar'}
+          </button>
+
+          <p className="text-center text-xs leading-5 text-slate-400">
+            {isLocked
+              ? `Espera ${formatCountdown(secondsLeft)} para intentarlo de nuevo.`
+              : 'Tras 5 intentos fallidos la cuenta se bloquea temporalmente.'}
+          </p>
+        </form>
+
+        <div className="mt-10 text-center">
+          <p className="text-sm text-slate-500">¿Aún no tienes cuenta?</p>
+          <Link
+            to="/registro"
+            className="mt-3 flex w-full items-center justify-center rounded-full border border-rose-400 px-4 py-3 text-sm font-semibold text-rose-500 transition hover:bg-rose-50 hover:text-rose-600"
+          >
+            Crear cuenta
+          </Link>
+        </div>
       </div>
     </main>
   )
