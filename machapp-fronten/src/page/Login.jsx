@@ -170,7 +170,7 @@ function Login({ accounts = getAccounts(), onSuccess }) {
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">
                 ✓
               </span>
-              Descubre nuevas personas
+              Descubre nuevas personas con tus gustos
             </li>
             <li className="flex items-center gap-3">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15">

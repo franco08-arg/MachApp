@@ -21,6 +21,7 @@ const INTERESTS = [
   'Arte',
   'Cine',
   'Naturaleza',
+  
 ]
 
 const INITIAL_FORM = {
