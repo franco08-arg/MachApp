@@ -106,6 +106,7 @@ function Login({ accounts = getAccounts(), onSuccess }) {
 
       const session = {
         identifier: identifier.trim(),
+        role: account.role ?? 'user',
         loggedAt: new Date().toISOString(),
       }
       saveSession(session)

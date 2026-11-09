@@ -8,6 +8,15 @@ export const DEMO_ACCOUNTS = [
     password: 'matchapp123',
     nombres: 'Cuenta',
     apellidos: 'Demo',
+    role: 'user',
+  },
+  {
+    email: 'admin@matchapp.pe',
+    dni: '87654321',
+    password: 'admin123',
+    nombres: 'Administrador',
+    apellidos: 'MatchApp',
+    role: 'admin',
   },
 ]
 
@@ -38,7 +47,19 @@ const matchesIdentifier = (account, identifier) => {
   return normalizeEmail(account.email) === value || String(account.dni) === value
 }
 
-export const getAccounts = () => [...DEMO_ACCOUNTS, ...readStoredAccounts()]
+export const getAccounts = () => {
+  const stored = readStoredAccounts()
+  const storedEmails = new Set(stored.map((account) => normalizeEmail(account.email)))
+  const storedDnis = new Set(stored.map((account) => String(account.dni)))
+
+  const demo = DEMO_ACCOUNTS.filter(
+    (account) =>
+      !storedEmails.has(normalizeEmail(account.email)) &&
+      !storedDnis.has(String(account.dni)),
+  )
+
+  return [...stored, ...demo]
+}
 
 export const findAccount = (identifier) =>
   getAccounts().find((account) => matchesIdentifier(account, identifier)) ?? null
@@ -51,8 +72,32 @@ export const isDniRegistered = (dni) =>
 
 export const saveAccount = (account) => {
   const stored = readStoredAccounts()
-  window.localStorage.setItem(ACCOUNTS_KEY, JSON.stringify([...stored, account]))
-  return account
+  const nextAccount = { role: 'user', ...account }
+  window.localStorage.setItem(ACCOUNTS_KEY, JSON.stringify([...stored, nextAccount]))
+  return nextAccount
+}
+
+export const updateAccountPassword = (identifier, password) => {
+  const account = findAccount(identifier)
+  if (!account) return null
+
+  const stored = readStoredAccounts()
+  const index = stored.findIndex((item) => matchesIdentifier(item, identifier))
+
+  if (index >= 0) {
+    const nextAccount = { ...stored[index], password }
+    const nextStored = [...stored]
+    nextStored[index] = nextAccount
+    window.localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(nextStored))
+    return nextAccount
+  }
+
+  const nextAccount = { ...account, password }
+  window.localStorage.setItem(
+    ACCOUNTS_KEY,
+    JSON.stringify([...stored, nextAccount]),
+  )
+  return nextAccount
 }
 
 const getProfileKey = (identifier) => {
