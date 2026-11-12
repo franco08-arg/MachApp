@@ -77,6 +77,29 @@ export const saveAccount = (account) => {
   return nextAccount
 }
 
+export const updateAccount = (identifier, changes) => {
+  const account = findAccount(identifier)
+  if (!account) return null
+
+  const stored = readStoredAccounts()
+  const index = stored.findIndex((item) => matchesIdentifier(item, identifier))
+
+  if (index >= 0) {
+    const nextAccount = { ...stored[index], ...changes }
+    const nextStored = [...stored]
+    nextStored[index] = nextAccount
+    window.localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(nextStored))
+    return nextAccount
+  }
+
+  const nextAccount = { ...account, ...changes }
+  window.localStorage.setItem(
+    ACCOUNTS_KEY,
+    JSON.stringify([...stored, nextAccount]),
+  )
+  return nextAccount
+}
+
 export const updateAccountPassword = (identifier, password) => {
   const account = findAccount(identifier)
   if (!account) return null

@@ -2,7 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BottomNav from '../components/BottomNav.jsx'
 import { clearSession, getSession } from '../auth.js'
-import { findAccount, getProfile, saveProfile } from '../services/accounts.js'
+import {
+  findAccount,
+  getProfile,
+  saveProfile,
+  updateAccount,
+} from '../services/accounts.js'
 
 const GENDERS = ['Mujer', 'Hombre', 'Otro']
 const LOOKING_FOR = ['Mujeres', 'Hombres', 'Todos']
@@ -35,7 +40,11 @@ const EmptyValue = ({ children }) => (
 function Gestionar() {
   const navigate = useNavigate()
   const [session] = useState(() => getSession())
-  const [account] = useState(() => findAccount(session?.identifier))
+  const [account, setAccount] = useState(() => findAccount(session?.identifier))
+  const [names, setNames] = useState(() => ({
+    nombres: account?.nombres ?? '',
+    apellidos: account?.apellidos ?? '',
+  }))
   const [profile, setProfile] = useState(() => {
     const stored = getProfile(session?.identifier)
     return {
@@ -55,6 +64,14 @@ function Gestionar() {
 
   const updateField = (field) => (value) => {
     setProfile((current) => ({ ...current, [field]: value }))
+
+    if (errors[field]) {
+      setErrors((current) => ({ ...current, [field]: '' }))
+    }
+  }
+
+  const updateName = (field) => (value) => {
+    setNames((current) => ({ ...current, [field]: value }))
 
     if (errors[field]) {
       setErrors((current) => ({ ...current, [field]: '' }))
@@ -120,6 +137,11 @@ function Gestionar() {
   }
 
   const handleCancel = () => {
+    setNames({
+      nombres: account?.nombres ?? '',
+      apellidos: account?.apellidos ?? '',
+    })
+
     const stored = getProfile(session?.identifier)
     setProfile({
       ...INITIAL_PROFILE,
@@ -137,6 +159,20 @@ function Gestionar() {
     event.preventDefault()
 
     const nextErrors = {}
+    const nombres = names.nombres.trim()
+    const apellidos = names.apellidos.trim()
+
+    if (!nombres) {
+      nextErrors.nombres = 'Ingresa tus nombres.'
+    } else if (nombres.length < 2) {
+      nextErrors.nombres = 'Los nombres deben tener al menos 2 caracteres.'
+    }
+
+    if (!apellidos) {
+      nextErrors.apellidos = 'Ingresa tus apellidos.'
+    } else if (apellidos.length < 2) {
+      nextErrors.apellidos = 'Los apellidos deben tener al menos 2 caracteres.'
+    }
 
     if (!profile.gender) {
       nextErrors.gender = 'Elige tu género.'
@@ -153,6 +189,15 @@ function Gestionar() {
     setErrors(nextErrors)
 
     if (Object.keys(nextErrors).length > 0) return
+
+    const updatedAccount = updateAccount(session?.identifier, {
+      nombres,
+      apellidos,
+    })
+
+    if (updatedAccount) {
+      setAccount(updatedAccount)
+    }
 
     saveProfile(session?.identifier, {
       gender: profile.gender,
@@ -364,6 +409,51 @@ function Gestionar() {
             onSubmit={handleSave}
             className="mt-5 space-y-5 rounded-2xl bg-white p-5 shadow-lg shadow-slate-400/20"
           >
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label
+                  htmlFor="nombres"
+                  className="mb-1.5 block text-xs font-semibold text-slate-600"
+                >
+                  Nombres
+                </label>
+                <input
+                  id="nombres"
+                  name="nombres"
+                  type="text"
+                  autoComplete="given-name"
+                  placeholder="Tus nombres"
+                  value={names.nombres}
+                  onChange={(event) => updateName('nombres')(event.target.value)}
+                  aria-invalid={Boolean(errors.nombres)}
+                  className={INPUT_CLASS}
+                />
+                <FieldError message={errors.nombres} />
+              </div>
+              <div>
+                <label
+                  htmlFor="apellidos"
+                  className="mb-1.5 block text-xs font-semibold text-slate-600"
+                >
+                  Apellidos
+                </label>
+                <input
+                  id="apellidos"
+                  name="apellidos"
+                  type="text"
+                  autoComplete="family-name"
+                  placeholder="Tus apellidos"
+                  value={names.apellidos}
+                  onChange={(event) =>
+                    updateName('apellidos')(event.target.value)
+                  }
+                  aria-invalid={Boolean(errors.apellidos)}
+                  className={INPUT_CLASS}
+                />
+                <FieldError message={errors.apellidos} />
+              </div>
+            </div>
+
             <fieldset>
               <legend className="mb-2 text-xs font-semibold text-slate-600">
                 Soy

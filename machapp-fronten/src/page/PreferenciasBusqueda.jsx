@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import BottomNav from '../components/BottomNav.jsx'
 import { getSession } from '../auth.js'
@@ -13,9 +13,30 @@ import {
 } from '../services/preferences.js'
 
 const THUMB_CLASS =
-  '[&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-rose-500 [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:cursor-grab [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-rose-500 [&::-moz-range-thumb]:shadow-md'
+  '[&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:bg-rose-500 [&::-webkit-slider-thumb]:shadow-md [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:bg-rose-500 [&::-moz-range-thumb]:shadow-md'
+
+const THUMB_SIZE = 20
+
+const valueFromPointer = (clientX, element, min, max) => {
+  if (!element) return min
+
+  const rect = element.getBoundingClientRect()
+  const usable = Math.max(rect.width - THUMB_SIZE, 1)
+  const ratio = (clientX - rect.left - THUMB_SIZE / 2) / usable
+  const clamped = Math.min(Math.max(ratio, 0), 1)
+
+  return Math.round(min + clamped * (max - min))
+}
 
 const percent = (value, min, max) => ((value - min) / (max - min)) * 100
+
+const THUMB_BUBBLE_CLASS =
+  'pointer-events-none absolute -top-9 z-10 -translate-x-1/2 whitespace-nowrap rounded-full bg-rose-500 px-2.5 py-1 text-[11px] font-bold text-white shadow-md after:absolute after:left-1/2 after:top-full after:h-2 after:w-2 after:-translate-x-1/2 after:-translate-y-1/2 after:rotate-45 after:rounded-[1px] after:bg-rose-500'
+
+const bubbleStyle = (value) => {
+  const clamped = Math.min(Math.max(value, 0), 100)
+  return { left: `calc(${clamped}% + ${10 - clamped * 0.2}px)` }
+}
 
 function PreferenciasBusqueda() {
   const navigate = useNavigate()
@@ -23,6 +44,11 @@ function PreferenciasBusqueda() {
   const [preferences, setPreferences] = useState(() =>
     getPreferences(session?.identifier),
   )
+
+  const ageTrackRef = useRef(null)
+  const distanceTrackRef = useRef(null)
+  const activeAgeHandle = useRef(null)
+  const isDraggingDistance = useRef(false)
 
   const updatePreference = (field) => (event) => {
     const value = Number(event.target.value)
@@ -38,6 +64,88 @@ function PreferenciasBusqueda() {
 
       return { ...current, [field]: value }
     })
+  }
+
+  const setAgeValue = (handle, value) => {
+    setPreferences((current) =>
+      handle === 'minAge'
+        ? { ...current, minAge: Math.min(value, current.maxAge) }
+        : { ...current, maxAge: Math.max(value, current.minAge) },
+    )
+  }
+
+  const handleAgePointerDown = (event) => {
+    const value = valueFromPointer(
+      event.clientX,
+      ageTrackRef.current,
+      AGE_MIN,
+      AGE_MAX,
+    )
+    const handle =
+      Math.abs(value - preferences.minAge) <=
+      Math.abs(value - preferences.maxAge)
+        ? 'minAge'
+        : 'maxAge'
+
+    activeAgeHandle.current = handle
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setAgeValue(handle, value)
+  }
+
+  const handleAgePointerMove = (event) => {
+    if (!activeAgeHandle.current) return
+
+    const value = valueFromPointer(
+      event.clientX,
+      ageTrackRef.current,
+      AGE_MIN,
+      AGE_MAX,
+    )
+    setAgeValue(activeAgeHandle.current, value)
+  }
+
+  const handleAgePointerEnd = (event) => {
+    activeAgeHandle.current = null
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+  }
+
+  const handleDistancePointerDown = (event) => {
+    isDraggingDistance.current = true
+    event.currentTarget.setPointerCapture(event.pointerId)
+    setPreferences((current) => ({
+      ...current,
+      maxDistance: valueFromPointer(
+        event.clientX,
+        distanceTrackRef.current,
+        DISTANCE_MIN,
+        DISTANCE_MAX,
+      ),
+    }))
+  }
+
+  const handleDistancePointerMove = (event) => {
+    if (!isDraggingDistance.current) return
+
+    setPreferences((current) => ({
+      ...current,
+      maxDistance: valueFromPointer(
+        event.clientX,
+        distanceTrackRef.current,
+        DISTANCE_MIN,
+        DISTANCE_MAX,
+      ),
+    }))
+  }
+
+  const handleDistancePointerEnd = (event) => {
+    isDraggingDistance.current = false
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
   }
 
   const handleReset = () => {
@@ -109,12 +217,33 @@ function PreferenciasBusqueda() {
               </span>
             </div>
 
-            <div className="relative mt-6 h-6">
+            <div
+              ref={ageTrackRef}
+              onPointerDown={handleAgePointerDown}
+              onPointerMove={handleAgePointerMove}
+              onPointerUp={handleAgePointerEnd}
+              onPointerCancel={handleAgePointerEnd}
+              className="relative mt-10 h-6 cursor-pointer touch-none select-none"
+            >
               <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-slate-200" />
               <div
                 className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-[#f2455c] to-[#f58a5f]"
                 style={{ left: `${ageLeft}%`, right: `${100 - ageRight}%` }}
               />
+              <span
+                aria-hidden="true"
+                className={THUMB_BUBBLE_CLASS}
+                style={bubbleStyle(ageLeft)}
+              >
+                {preferences.minAge} años
+              </span>
+              <span
+                aria-hidden="true"
+                className={THUMB_BUBBLE_CLASS}
+                style={bubbleStyle(ageRight)}
+              >
+                {preferences.maxAge} años
+              </span>
               <input
                 type="range"
                 min={AGE_MIN}
@@ -160,12 +289,26 @@ function PreferenciasBusqueda() {
               </span>
             </div>
 
-            <div className="relative mt-6 h-6">
+            <div
+              ref={distanceTrackRef}
+              onPointerDown={handleDistancePointerDown}
+              onPointerMove={handleDistancePointerMove}
+              onPointerUp={handleDistancePointerEnd}
+              onPointerCancel={handleDistancePointerEnd}
+              className="relative mt-10 h-6 cursor-pointer touch-none select-none"
+            >
               <div className="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 rounded-full bg-slate-200" />
               <div
                 className="absolute top-1/2 h-2 -translate-y-1/2 rounded-full bg-gradient-to-r from-[#f2455c] to-[#f58a5f]"
                 style={{ left: 0, width: `${distancePercent}%` }}
               />
+              <span
+                aria-hidden="true"
+                className={THUMB_BUBBLE_CLASS}
+                style={bubbleStyle(distancePercent)}
+              >
+                {preferences.maxDistance} km
+              </span>
               <input
                 type="range"
                 min={DISTANCE_MIN}
